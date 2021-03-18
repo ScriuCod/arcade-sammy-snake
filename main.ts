@@ -1,3 +1,7 @@
+function FruitPlaceRandom (fruit: Image, randomX: number, randomY: number) {
+    sprNewFruit = sprites.create(fruit, SpriteKind.Food)
+    sprNewFruit.setPosition(randomX - randomX % 10 - 5, randomY - randomY % 10 - 5)
+}
 function snakeSetDirection (direction: string) {
     sprites.setDataString(sprSnake, "direction", direction)
     if (direction == "up") {
@@ -37,14 +41,19 @@ controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
     snakeSetDirection("left")
 })
 function fruitsPlaceOnMap () {
+    let sprFruits: Image[] = []
     sprNewFruit = sprites.create(sprFruits[randint(0, sprFruits.length - 1)], SpriteKind.Food)
     sprNewFruit.setPosition(0, 0)
 }
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
     snakeSetDirection("right")
 })
-function fruitsSetup () {
-    sprFruits = [img`
+controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
+    snakeSetDirection("down")
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSprite) {
+    otherSprite.destroy()
+    FruitPlaceRandom([img`
         . . . . 7 . . . . . 
         . . 5 5 5 5 4 . . . 
         . 5 5 d 5 5 4 4 . . 
@@ -77,13 +86,7 @@ function fruitsSetup () {
         . 5 5 5 5 5 4 4 . . 
         . . 5 5 5 4 4 . . . 
         . . . 5 4 4 . . . . 
-        `]
-}
-controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
-    snakeSetDirection("down")
-})
-sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSprite) {
-    otherSprite.destroy()
+        `][randint(0, 2)], randint(10, 170), randint(10, 120))
 })
 function snakeAdvance () {
     if (sprites.readDataString(sprSnake, "direction") == "up") {
@@ -96,14 +99,45 @@ function snakeAdvance () {
         sprSnake.x += -10
     }
 }
-let sprFruits: Image[] = []
-let sprNewFruit: Sprite = null
 let sprSnake: Sprite = null
+let sprNewFruit: Sprite = null
 scene.setBackgroundColor(9)
 snakeCreate()
 snakeSetDirection("right")
-fruitsSetup()
-fruitsPlaceOnMap()
+FruitPlaceRandom([img`
+    . . . . 7 . . . . . 
+    . . 5 5 5 5 4 . . . 
+    . 5 5 d 5 5 4 4 . . 
+    5 5 d 5 5 5 5 4 4 . 
+    5 d 5 5 5 5 5 4 4 . 
+    5 5 5 5 5 5 5 4 4 . 
+    5 5 5 5 5 5 5 4 4 . 
+    . 5 5 5 5 5 4 4 . . 
+    . . 5 5 5 4 4 . . . 
+    . . . 5 4 4 . . . . 
+    `, img`
+    . . 7 . . . . . . . 
+    . . 7 7 . 7 . 7 . . 
+    . . . 7 7 7 7 . . . 
+    . . 2 2 2 2 2 2 . . 
+    . 2 2 4 2 2 2 2 2 . 
+    . 2 2 2 2 2 2 2 2 . 
+    . . 2 2 2 2 4 2 . . 
+    . . 2 2 4 2 2 2 . . 
+    . . . 2 2 2 2 . . . 
+    . . . . 2 2 . . . . 
+    `, img`
+    . . . . 7 . . . . . 
+    . . 5 5 5 5 4 . . . 
+    . 5 5 d 5 5 4 4 . . 
+    5 5 d 5 5 5 5 4 4 . 
+    5 d 5 5 5 5 5 4 4 . 
+    5 5 5 5 5 5 5 4 4 . 
+    5 5 5 5 5 5 5 4 4 . 
+    . 5 5 5 5 5 4 4 . . 
+    . . 5 5 5 4 4 . . . 
+    . . . 5 4 4 . . . . 
+    `][randint(0, 2)], randint(10, 170), randint(10, 120))
 game.onUpdateInterval(sprites.readDataNumber(sprSnake, "speed"), function () {
     snakeAdvance()
 })
