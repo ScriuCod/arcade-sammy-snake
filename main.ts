@@ -1,3 +1,6 @@
+namespace SpriteKind {
+    export const Tail = SpriteKind.create()
+}
 function FruitPlaceRandom (fruit: Image, randomX: number, randomY: number) {
     sprNewFruit = sprites.create(fruit, SpriteKind.Food)
     sprNewFruit.setPosition(randomX - randomX % 10 - 5, randomY - randomY % 10 - 5)
@@ -17,9 +20,80 @@ function snakeSetDirection (direction: string) {
 controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
     snakeSetDirection("up")
 })
+function tailSegmentPosition (sprLast: Sprite, sprNewSegment: Sprite) {
+    sprites.setDataString(sprNewSegment, "direction", sprites.readDataString(sprLast, "direction"))
+    if (sprites.readDataString(sprSnake, "direction") == "up") {
+        sprNewSegment.setPosition(sprLast.x, sprLast.y - 10)
+    } else if (sprites.readDataString(sprSnake, "direction") == "down") {
+        sprNewSegment.setPosition(sprLast.x, sprLast.y + 10)
+    } else if (sprites.readDataString(sprSnake, "direction") == "right") {
+        sprNewSegment.setPosition(sprLast.x - 10, sprLast.y)
+    } else if (sprites.readDataString(sprSnake, "direction") == "left") {
+        sprNewSegment.setPosition(sprLast.x + 10, sprLast.y)
+    }
+}
 sprites.onDestroyed(SpriteKind.Food, function (sprite) {
-    fruitsPlaceOnMap()
     info.changeScoreBy(1)
+    FruitPlaceRandom([img`
+        . . . . 7 . . . . . 
+        . . 5 5 5 5 4 . . . 
+        . 5 5 d 5 5 4 4 . . 
+        5 5 d 5 5 5 5 4 4 . 
+        5 d 5 5 5 5 5 4 4 . 
+        5 5 5 5 5 5 5 4 4 . 
+        5 5 5 5 5 5 5 4 4 . 
+        . 5 5 5 5 5 4 4 . . 
+        . . 5 5 5 4 4 . . . 
+        . . . 5 4 4 . . . . 
+        `, img`
+        . . 7 . . . . . . . 
+        . . 7 7 . 7 . 7 . . 
+        . . . 7 7 7 7 . . . 
+        . . 2 2 2 2 2 2 . . 
+        . 2 2 4 2 2 2 2 2 . 
+        . 2 2 2 2 2 2 2 2 . 
+        . . 2 2 2 2 4 2 . . 
+        . . 2 2 4 2 2 2 . . 
+        . . . 2 2 2 2 . . . 
+        . . . . 2 2 . . . . 
+        `, img`
+        . . . . 7 . . . . . 
+        . . 9 9 9 9 6 . . . 
+        . 9 9 d 9 9 6 6 . . 
+        9 9 d 9 9 9 9 6 6 . 
+        9 d 9 9 9 9 9 6 6 . 
+        9 9 9 9 9 9 9 6 6 . 
+        9 9 9 9 9 9 9 6 6 . 
+        . 9 9 9 9 9 6 6 . . 
+        . . 9 9 9 6 6 . . . 
+        . . . 9 6 6 . . . . 
+        `][randint(0, 2)], randint(10, 170), randint(10, 120))
+    tailAddSegment(sprites.create(img`
+        . . . . . . . . . . 
+        . . 4 4 4 4 4 4 . . 
+        . 4 . . . . . . 4 . 
+        . 4 . . . . . . 4 . 
+        . 4 . . . . . . 4 . 
+        . 4 . . . . . . 4 . 
+        . 4 . . . . . . 4 . 
+        . 4 . . . . . . 4 . 
+        . . 4 4 4 4 4 4 . . 
+        . . . . . . . . . . 
+        `, SpriteKind.Tail))
+})
+controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
+    tailAddSegment(sprites.create(img`
+        . . . . . . . . . . 
+        . . 4 4 4 4 4 4 . . 
+        . 4 . . . . . . 4 . 
+        . 4 . . . . . . 4 . 
+        . 4 . . . . . . 4 . 
+        . 4 . . . . . . 4 . 
+        . 4 . . . . . . 4 . 
+        . 4 . . . . . . 4 . 
+        . . 4 4 4 4 4 4 . . 
+        . . . . . . . . . . 
+        `, SpriteKind.Tail))
 })
 function snakeCreate () {
     sprSnake = sprites.create(img`
@@ -40,10 +114,15 @@ function snakeCreate () {
 controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
     snakeSetDirection("left")
 })
-function fruitsPlaceOnMap () {
-    let sprFruits: Image[] = []
-    sprNewFruit = sprites.create(sprFruits[randint(0, sprFruits.length - 1)], SpriteKind.Food)
-    sprNewFruit.setPosition(0, 0)
+function tailAddSegment (segment: Sprite) {
+    if (sprTail.length == 0) {
+        tailSegmentPosition(sprSnake, segment)
+        console.logValue("Add first segment", sprTail.length)
+    } else {
+        tailSegmentPosition(sprTail[sprTail.length - 1], segment)
+        console.logValue("Add segment", sprTail.length)
+    }
+    sprTail.push(segment)
 }
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
     snakeSetDirection("right")
@@ -51,8 +130,8 @@ controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
 controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
     snakeSetDirection("down")
 })
-sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSprite) {
-    otherSprite.destroy()
+function fruitCreate () {
+    console.logValue("fruitPlaceRandom At", 0)
     FruitPlaceRandom([img`
         . . . . 7 . . . . . 
         . . 5 5 5 5 4 . . . 
@@ -87,8 +166,11 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSpr
         . . 5 5 5 4 4 . . . 
         . . . 5 4 4 . . . . 
         `][randint(0, 2)], randint(10, 170), randint(10, 120))
+}
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSprite) {
+    otherSprite.destroy()
 })
-function snakeAdvance () {
+function snakeAdvance (direction: string, x: number, y: number) {
     if (sprites.readDataString(sprSnake, "direction") == "up") {
         sprSnake.y += -10
     } else if (sprites.readDataString(sprSnake, "direction") == "down") {
@@ -98,46 +180,24 @@ function snakeAdvance () {
     } else if (sprites.readDataString(sprSnake, "direction") == "left") {
         sprSnake.x += -10
     }
+    for (let index = 0; index <= sprTail.length - 1; index++) {
+        if (index == 0) {
+            sprites.setDataString(sprTail[index], "direction", sprites.readDataString(sprSnake, "direction"))
+            sprTail[index].setPosition(x, y)
+        } else {
+            sprites.setDataString(sprTail[index], "direction", sprites.readDataString(sprTail[index - 1], "direction"))
+            sprTail[index].setPosition(sprTail[index - 1].x, sprTail[index - 1].y)
+        }
+    }
 }
 let sprSnake: Sprite = null
 let sprNewFruit: Sprite = null
-scene.setBackgroundColor(9)
+let sprTail: Sprite[] = []
+scene.setBackgroundColor(13)
 snakeCreate()
 snakeSetDirection("right")
-FruitPlaceRandom([img`
-    . . . . 7 . . . . . 
-    . . 5 5 5 5 4 . . . 
-    . 5 5 d 5 5 4 4 . . 
-    5 5 d 5 5 5 5 4 4 . 
-    5 d 5 5 5 5 5 4 4 . 
-    5 5 5 5 5 5 5 4 4 . 
-    5 5 5 5 5 5 5 4 4 . 
-    . 5 5 5 5 5 4 4 . . 
-    . . 5 5 5 4 4 . . . 
-    . . . 5 4 4 . . . . 
-    `, img`
-    . . 7 . . . . . . . 
-    . . 7 7 . 7 . 7 . . 
-    . . . 7 7 7 7 . . . 
-    . . 2 2 2 2 2 2 . . 
-    . 2 2 4 2 2 2 2 2 . 
-    . 2 2 2 2 2 2 2 2 . 
-    . . 2 2 2 2 4 2 . . 
-    . . 2 2 4 2 2 2 . . 
-    . . . 2 2 2 2 . . . 
-    . . . . 2 2 . . . . 
-    `, img`
-    . . . . 7 . . . . . 
-    . . 5 5 5 5 4 . . . 
-    . 5 5 d 5 5 4 4 . . 
-    5 5 d 5 5 5 5 4 4 . 
-    5 d 5 5 5 5 5 4 4 . 
-    5 5 5 5 5 5 5 4 4 . 
-    5 5 5 5 5 5 5 4 4 . 
-    . 5 5 5 5 5 4 4 . . 
-    . . 5 5 5 4 4 . . . 
-    . . . 5 4 4 . . . . 
-    `][randint(0, 2)], randint(10, 170), randint(10, 120))
+fruitCreate()
+sprTail = []
 game.onUpdateInterval(sprites.readDataNumber(sprSnake, "speed"), function () {
-    snakeAdvance()
+    snakeAdvance(sprites.readDataString(sprSnake, "direction"), sprSnake.x, sprSnake.y)
 })
