@@ -20,18 +20,6 @@ function snakeSetDirection (direction: string) {
 controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
     snakeSetDirection("up")
 })
-function tailSegmentPosition (sprLast: Sprite, sprNewSegment: Sprite) {
-    sprites.setDataString(sprNewSegment, "direction", sprites.readDataString(sprLast, "direction"))
-    if (sprites.readDataString(sprSnake, "direction") == "up") {
-        sprNewSegment.setPosition(sprLast.x, sprLast.y - 10)
-    } else if (sprites.readDataString(sprSnake, "direction") == "down") {
-        sprNewSegment.setPosition(sprLast.x, sprLast.y + 10)
-    } else if (sprites.readDataString(sprSnake, "direction") == "right") {
-        sprNewSegment.setPosition(sprLast.x - 10, sprLast.y)
-    } else if (sprites.readDataString(sprSnake, "direction") == "left") {
-        sprNewSegment.setPosition(sprLast.x + 10, sprLast.y)
-    }
-}
 sprites.onDestroyed(SpriteKind.Food, function (sprite) {
     info.changeScoreBy(1)
     FruitPlaceRandom([img`
@@ -81,6 +69,9 @@ sprites.onDestroyed(SpriteKind.Food, function (sprite) {
         . . . . . . . . . . 
         `, SpriteKind.Tail))
 })
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Tail, function (sprite, otherSprite) {
+    game.over(false)
+})
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     tailAddSegment(sprites.create(img`
         . . . . . . . . . . 
@@ -115,14 +106,8 @@ controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
     snakeSetDirection("left")
 })
 function tailAddSegment (segment: Sprite) {
-    if (sprTail.length == 0) {
-        tailSegmentPosition(sprSnake, segment)
-        console.logValue("Add first segment", sprTail.length)
-    } else {
-        tailSegmentPosition(sprTail[sprTail.length - 1], segment)
-        console.logValue("Add segment", sprTail.length)
-    }
     sprTail.push(segment)
+    sprTail[sprTail.length - 1].setPosition(snakeBodyPositions[sprTail.length - 1][0], snakeBodyPositions[sprTail.length - 1][1])
 }
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
     snakeSetDirection("right")
@@ -171,6 +156,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSpr
     otherSprite.destroy()
 })
 function snakeAdvance (direction: string, x: number, y: number) {
+    snakeBodyPositions.unshift([x, y])
     if (sprites.readDataString(sprSnake, "direction") == "up") {
         sprSnake.y += -10
     } else if (sprites.readDataString(sprSnake, "direction") == "down") {
@@ -181,23 +167,19 @@ function snakeAdvance (direction: string, x: number, y: number) {
         sprSnake.x += -10
     }
     for (let index = 0; index <= sprTail.length - 1; index++) {
-        if (index == 0) {
-            sprites.setDataString(sprTail[index], "direction", sprites.readDataString(sprSnake, "direction"))
-            sprTail[index].setPosition(x, y)
-        } else {
-            sprites.setDataString(sprTail[index], "direction", sprites.readDataString(sprTail[index - 1], "direction"))
-            sprTail[index].setPosition(sprTail[index - 1].x, sprTail[index - 1].y)
-        }
+        sprTail[index].setPosition(snakeBodyPositions[index][0], snakeBodyPositions[index][1])
     }
 }
 let sprSnake: Sprite = null
 let sprNewFruit: Sprite = null
+let snakeBodyPositions: number[][] = []
 let sprTail: Sprite[] = []
 scene.setBackgroundColor(13)
 snakeCreate()
 snakeSetDirection("right")
 fruitCreate()
 sprTail = []
+snakeBodyPositions = []
 game.onUpdateInterval(sprites.readDataNumber(sprSnake, "speed"), function () {
     snakeAdvance(sprites.readDataString(sprSnake, "direction"), sprSnake.x, sprSnake.y)
 })
