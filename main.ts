@@ -101,6 +101,7 @@ function snakeCreate () {
         `, SpriteKind.Player)
     sprites.setDataString(sprSnake, "direction", "right")
     sprites.setDataNumber(sprSnake, "speed", 200)
+    sprSnake.setFlag(SpriteFlag.StayInScreen, true)
 }
 controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
     snakeSetDirection("left")
