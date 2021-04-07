@@ -23,7 +23,7 @@ controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
 })
 sprites.onDestroyed(SpriteKind.Food, function (sprite) {
     info.changeScoreBy(1)
-    FruitPlaceRandom([assets.image`fruit-lemon`, assets.image`fruit-strawberry`, assets.image`fruit-orange`][randint(0, 2)], randint(10, 170), randint(10, 120))
+    FruitPlaceRandom([assets.image`fruit-lemon`, assets.image`fruit-strawberry`, assets.image`fruit-orange`][randint(0, 2)], randint(10, scene.screenWidth() - 10), randint(10, scene.screenHeight() - 10))
     tailAddSegment(sprites.create(assets.image`snake-segment`, SpriteKind.Tail))
     sprites.setDataNumber(sprSnake, "speed", 300 - info.score() * 2)
     console.logValue("newSpeed", sprites.readDataNumber(sprSnake, "speed"))
@@ -53,7 +53,7 @@ controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
 })
 function fruitCreate () {
     console.logValue("fruitPlaceRandom At", 0)
-    FruitPlaceRandom([assets.image`fruit-lemon`, assets.image`fruit-strawberry`, assets.image`fruit-orange`][randint(0, 2)], randint(10, 170), randint(10, 120))
+    FruitPlaceRandom([assets.image`fruit-lemon`, assets.image`fruit-strawberry`, assets.image`fruit-orange`][randint(0, 2)], randint(10, scene.screenWidth() - 10), randint(10, scene.screenHeight() - 10))
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSprite) {
     otherSprite.destroy()
