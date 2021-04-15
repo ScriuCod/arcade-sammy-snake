@@ -39,6 +39,7 @@ function snakeCreate () {
     sprites.setDataString(sprSnake, "direction", "right")
     sprSnake.setFlag(SpriteFlag.StayInScreen, true)
     sprites.setDataNumber(sprSnake, "speed", 300 - info.score() * 2)
+    sprSnake.setFlag(SpriteFlag.Invisible, true)
 }
 controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
     if (gamePlaying == true) {
@@ -174,7 +175,7 @@ function gameSplashScreen () {
         ................................................................................................................................................................
         ................................................................................................................................................................
         `)
-    sprSammyText = textsprite.create("Sammy Snake", 6, 4)
+    sprSammyText = textsprite.create("Sammy Snake", 13, 4)
     sprSammyText.setMaxFontHeight(14)
     sprSammyText.setPosition(85, 25)
     blockMenu.showMenu(["Play", "Instructions", "Credits"], MenuStyle.List, MenuLocation.BottomHalf)
@@ -213,18 +214,17 @@ function snakeAdvance (direction: string, x: number, y: number) {
     }
 }
 function gameStart () {
-    gamePlaying = true
     scene.setBackgroundColor(13)
     scene.setBackgroundImage(assets.image`game-grid`)
-    blockMenu.closeMenu()
-    snakeCreate()
+    gamePlaying = true
+    sprSnake.setFlag(SpriteFlag.Invisible, false)
     snakeSetDirection("right")
     fruitCreate()
-    sprTail = []
-    snakeBodyPositions = []
 }
 blockMenu.onMenuOptionSelected(function (option, index) {
+    console.logValue("Menu selection", option)
     if (option == "Play") {
+        blockMenu.closeMenu()
         gameStart()
     } else if (false) {
     	
@@ -233,13 +233,18 @@ blockMenu.onMenuOptionSelected(function (option, index) {
     }
 })
 let sprSammyText: TextSprite = null
-let snakeBodyPositions: number[][] = []
-let sprTail: Sprite[] = []
 let gamePlaying = false
 let sprSnake: Sprite = null
 let sprNewFruit: Sprite = null
+let snakeBodyPositions: number[][] = []
+let sprTail: Sprite[] = []
+info.setScore(0)
 gameSplashScreen()
+snakeCreate()
+sprTail = []
+snakeBodyPositions = []
 game.onUpdateInterval(sprites.readDataNumber(sprSnake, "speed"), function () {
+    console.logValue("gameUpdate ", sprites.readDataNumber(sprSnake, "speed"))
     if (gamePlaying) {
         snakeAdvance(sprites.readDataString(sprSnake, "direction"), sprSnake.x, sprSnake.y)
     }
