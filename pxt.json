@@ -5,7 +5,8 @@
         "device": "*",
         "pxt-arcade-image-transform": "github:robo-technical-group/pxt-arcade-image-transform#v1.0.8",
         "arcade-sprite-data": "github:microsoft/arcade-sprite-data#v0.1.0",
-        "arcade-text": "github:microsoft/arcade-text#v1.3.0"
+        "arcade-text": "github:microsoft/arcade-text#v1.3.0",
+        "block-menu": "github:riknoll/arcade-custom-menu#v0.0.1"
     },
     "files": [
         "main.blocks",
@@ -21,7 +22,7 @@
         "test.ts"
     ],
     "targetVersions": {
-        "target": "1.4.35",
+        "target": "1.4.37",
         "targetId": "arcade"
     },
     "supportedTargets": [
