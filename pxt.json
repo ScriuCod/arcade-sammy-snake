@@ -6,8 +6,7 @@
         "pxt-arcade-image-transform": "github:robo-technical-group/pxt-arcade-image-transform#v1.0.8",
         "arcade-sprite-data": "github:microsoft/arcade-sprite-data#v0.1.0",
         "arcade-text": "github:microsoft/arcade-text#v1.3.0",
-        "block-menu": "github:riknoll/arcade-custom-menu#v0.0.1",
-        "settings-blocks": "github:microsoft/pxt-settings-blocks#v1.0.0"
+        "block-menu": "github:riknoll/arcade-custom-menu#v0.0.1"
     },
     "files": [
         "main.blocks",
@@ -17,8 +16,7 @@
         "images.g.jres",
         "images.g.ts",
         "tilemap.g.jres",
-        "tilemap.g.ts",
-        null
+        "tilemap.g.ts"
     ],
     "testFiles": [
         "test.ts"
