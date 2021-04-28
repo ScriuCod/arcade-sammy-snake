@@ -19,7 +19,7 @@ function snakeSetDirection (direction: string) {
     }
 }
 controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (gamePlaying == true) {
+    if (gameState == "playing") {
         snakeSetDirection("up")
     }
 })
@@ -38,11 +38,10 @@ function snakeCreate () {
     sprSnake.setPosition(5, 55)
     sprites.setDataString(sprSnake, "direction", "right")
     sprSnake.setFlag(SpriteFlag.StayInScreen, true)
-    sprites.setDataNumber(sprSnake, "speed", 300 - info.score() * 2)
     sprSnake.setFlag(SpriteFlag.Invisible, true)
 }
 controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (gamePlaying == true) {
+    if (gameState == "playing") {
         snakeSetDirection("left")
     }
 })
@@ -51,7 +50,6 @@ function tailAddSegment (segment: Sprite) {
     sprTail[sprTail.length - 1].setPosition(snakeBodyPositions[sprTail.length - 1][0], snakeBodyPositions[sprTail.length - 1][1])
 }
 function gameSplashScreen () {
-    gamePlaying = false
     scene.setBackgroundColor(13)
     scene.setBackgroundImage(img`
         ................................................................................................................................................................
@@ -181,13 +179,32 @@ function gameSplashScreen () {
     blockMenu.showMenu(["Play", "Instructions", "Credits"], MenuStyle.List, MenuLocation.BottomHalf)
     blockMenu.setColors(1, 13)
 }
+function gameModeChange (mode: string) {
+    console.logValue("gameModeChange", mode)
+    if (mode == "menu") {
+        blockMenu.setControlsEnabled(true)
+        gameSplashScreen()
+        sprSammyText.setFlag(SpriteFlag.Invisible, false)
+    } else if (mode == "playing") {
+        blockMenu.closeMenu()
+        blockMenu.setControlsEnabled(false)
+        snakeCreate()
+        gameStart()
+        sprSammyText.setFlag(SpriteFlag.Invisible, true)
+        gameState = "playing"
+    } else if (mode == "credits") {
+        blockMenu.setControlsEnabled(false)
+    } else if (mode == "instructions") {
+        blockMenu.setControlsEnabled(false)
+    }
+}
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (gamePlaying == true) {
+    if (gameState == "playing") {
         snakeSetDirection("right")
     }
 })
 controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (gamePlaying == true) {
+    if (gameState == "playing") {
         snakeSetDirection("down")
     }
 })
@@ -224,28 +241,25 @@ function gameStart () {
 blockMenu.onMenuOptionSelected(function (option, index) {
     console.logValue("Menu selection", option)
     if (option == "Play") {
-        blockMenu.closeMenu()
-        gameStart()
-    } else if (false) {
-    	
-    } else if (false) {
-    	
+        gameModeChange("playing")
     }
 })
-let sprSammyText: TextSprite = null
 let gamePlaying = false
+let sprSammyText: TextSprite = null
 let sprSnake: Sprite = null
 let sprNewFruit: Sprite = null
-let snakeBodyPositions: number[][] = []
 let sprTail: Sprite[] = []
-info.setScore(0)
-gameSplashScreen()
-snakeCreate()
-sprTail = []
+let snakeBodyPositions: number[][] = []
+let gameState = ""
+gameState = ""
 snakeBodyPositions = []
-game.onUpdateInterval(sprites.readDataNumber(sprSnake, "speed"), function () {
-    console.logValue("gameUpdate ", sprites.readDataNumber(sprSnake, "speed"))
-    if (gamePlaying) {
+let snakeSpeed = 300
+sprTail = []
+info.setScore(0)
+gameModeChange("menu")
+game.onUpdateInterval(snakeSpeed, function () {
+    console.logValue("gameUpdate ", snakeSpeed)
+    if (gameState == "playing") {
         snakeAdvance(sprites.readDataString(sprSnake, "direction"), sprSnake.x, sprSnake.y)
     }
 })
