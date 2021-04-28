@@ -187,6 +187,7 @@ function gameModeChange (mode: string) {
         blockMenu.setControlsEnabled(false)
         snakeCreate()
         gameStart()
+        info.setScore(0)
         sprSammyText.setFlag(SpriteFlag.Invisible, true)
         gameState = "playing"
     } else if (mode == "credits") {
@@ -260,7 +261,6 @@ gameState = ""
 snakeBodyPositions = []
 let snakeSpeed = 300
 sprTail = []
-info.setScore(0)
 gameModeChange("menu")
 game.onUpdateInterval(snakeSpeed, function () {
     console.logValue("gameUpdate ", snakeSpeed)
