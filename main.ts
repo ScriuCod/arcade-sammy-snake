@@ -23,6 +23,14 @@ controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
         snakeSetDirection("up")
     }
 })
+controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
+    if (gameState == "playing") {
+        gameModeChange("pause")
+    } else {
+        gameModeChange("menu")
+        story.setSoundEnabled(false)
+    }
+})
 sprites.onDestroyed(SpriteKind.Food, function (sprite) {
     info.changeScoreBy(1)
     FruitPlaceRandom([assets.image`fruit-lemon`, assets.image`fruit-strawberry`, assets.image`fruit-orange`][randint(0, 2)], randint(10, scene.screenWidth() - 10), randint(10, scene.screenHeight() - 10))
@@ -52,6 +60,7 @@ function tailAddSegment (segment: Sprite) {
 function gameModeChange (mode: string) {
     console.logValue("gameModeChange", mode)
     if (mode == "menu") {
+        story.cancelAllCutscenes()
         blockMenu.setControlsEnabled(true)
         scene.setBackgroundColor(13)
         scene.setBackgroundImage(img`
@@ -176,12 +185,12 @@ function gameModeChange (mode: string) {
             ................................................................................................................................................................
             ................................................................................................................................................................
             `)
-        sprSammyText = textsprite.create("Sammy Snake", 13, 4)
-        sprSammyText.setMaxFontHeight(14)
-        sprSammyText.setPosition(85, 25)
         blockMenu.showMenu(["Play", "Instructions", "Credits"], MenuStyle.List, MenuLocation.BottomHalf)
         blockMenu.setColors(1, 13)
+        sprSammyText = textsprite.create("Sammy Snake", 13, 4)
         sprSammyText.setFlag(SpriteFlag.Invisible, false)
+        sprSammyText.setMaxFontHeight(14)
+        sprSammyText.setPosition(85, 25)
     } else if (mode == "playing") {
         blockMenu.closeMenu()
         blockMenu.setControlsEnabled(false)
@@ -196,8 +205,21 @@ function gameModeChange (mode: string) {
         blockMenu.setControlsEnabled(false)
         sprSammyText.setText("Instructions")
         blockMenu.closeMenu()
-        story.setSoundEnabled(true)
-        story.printDialog("Use the arrow keys to determine the direction of the snake. Collect apples, and don't bump into yourself or the wall. Good luck =)", 85, 100, 80, 160, 4, 13, story.TextSpeed.Normal)
+        story.startCutscene(function () {
+            story.setSoundEnabled(true)
+            story.printDialog("Use the arrow keys to determine the direction of the snake. Collect apples, and don't bump into yourself or the wall. Good luck =)", 85, 100, 80, 160, 4, 13, story.TextSpeed.Normal)
+            story.printDialog("Press B to go back to menu.", 85, 100, 80, 160, 4, 13, story.TextSpeed.Normal)
+        })
+    } else if (mode == "pause") {
+        blockMenu.setControlsEnabled(true)
+        blockMenu.showMenu(["Resume", "Save and close"], MenuStyle.List, MenuLocation.BottomHalf)
+        gameState = "paused"
+    } else if (mode == "resume") {
+        blockMenu.closeMenu()
+        gameState = "playing"
+    } else if (mode == "save") {
+        blockMenu.closeMenu()
+        gameModeChange("menu")
     }
 }
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
@@ -248,6 +270,10 @@ blockMenu.onMenuOptionSelected(function (option, index) {
         gameModeChange("instructions")
     } else if (option == "Credits") {
         gameModeChange("credits")
+    } else if (option == "Resume") {
+        gameModeChange("resume")
+    } else if (option == "Save and close") {
+        gameModeChange("save")
     }
 })
 let gamePlaying = false
