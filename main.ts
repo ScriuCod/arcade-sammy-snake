@@ -44,6 +44,9 @@ sprites.onDestroyed(SpriteKind.Food, function (sprite) {
     tailAddSegment(sprites.create(assets.image`snake-segment`, SpriteKind.Tail))
     sprites.setDataNumber(sprSnake, "speed", 300 - info.score() * 2)
     console.logValue("newSpeed", sprites.readDataNumber(sprSnake, "speed"))
+    if (info.score() > blockSettings.readNumber("score")) {
+        blockSettings.writeNumber("score", info.score())
+    }
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Tail, function (sprite, otherSprite) {
     game.over(false)
@@ -198,6 +201,12 @@ function gameModeChange (mode: string) {
         txtGameTitle.setFlag(SpriteFlag.Invisible, false)
         txtGameTitle.setMaxFontHeight(14)
         txtGameTitle.setPosition(85, 25)
+        if (gameHighScore > 0) {
+            txtGameHighScore.setFlag(SpriteFlag.Invisible, false)
+            txtGameHighScore.setText("HighScore: " + gameHighScore)
+            txtGameHighScore.setMaxFontHeight(7)
+            txtGameHighScore.setPosition(85, 45)
+        }
     } else if (mode == "playing") {
         blockMenu.closeMenu()
         blockMenu.setControlsEnabled(false)
@@ -205,6 +214,7 @@ function gameModeChange (mode: string) {
         gameStart()
         info.setScore(0)
         txtGameTitle.setFlag(SpriteFlag.Invisible, true)
+        txtGameHighScore.setFlag(SpriteFlag.Invisible, true)
         gameState = "playing"
     } else if (mode == "credits") {
         blockMenu.setControlsEnabled(false)
@@ -269,6 +279,15 @@ function gameStart () {
     snakeSetDirection("right")
     fruitCreate()
 }
+function settingsLoad () {
+    if (blockSettings.exists("score")) {
+        gameHighScore = blockSettings.readNumber("score")
+        console.log("Settings loaded")
+    } else {
+        blockSettings.writeNumber("score", 0)
+        console.log("Settings created")
+    }
+}
 blockMenu.onMenuOptionSelected(function (option, index) {
     console.logValue("Menu selection", option)
     if (option == "Play") {
@@ -287,14 +306,19 @@ let gamePlaying = false
 let sprSnake: Sprite = null
 let sprNewFruit: Sprite = null
 let sprTail: Sprite[] = []
+let txtGameHighScore: TextSprite = null
 let txtGameTitle: TextSprite = null
 let snakeBodyPositions: number[][] = []
 let gameState = ""
+let gameHighScore = 0
+gameHighScore = 0
 gameState = ""
 snakeBodyPositions = []
 let snakeSpeed = 300
-txtGameTitle = textsprite.create("", 13, 4)
+txtGameTitle = textsprite.create(" ", 13, 4)
+txtGameHighScore = textsprite.create(" ", 13, 4)
 sprTail = []
+settingsLoad()
 gameModeChange("menu")
 game.onUpdateInterval(snakeSpeed, function () {
     console.logValue("gameUpdate ", snakeSpeed)
