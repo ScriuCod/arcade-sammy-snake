@@ -237,6 +237,17 @@ function gameModeChange (mode: string) {
     } else if (mode == "save") {
         blockMenu.closeMenu()
         gameModeChange("menu")
+        snakeBodyPositions = []
+        sprTail = []
+        for (let value of sprites.allOfKind(SpriteKind.Player)) {
+            value.destroy()
+        }
+        for (let value of sprites.allOfKind(SpriteKind.Food)) {
+            value.destroy()
+        }
+        for (let value of sprites.allOfKind(SpriteKind.Tail)) {
+            value.destroy()
+        }
     }
 }
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
