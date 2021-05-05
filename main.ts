@@ -23,6 +23,13 @@ controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
         snakeSetDirection("up")
     }
 })
+function snakeVisibility (visible: boolean) {
+    if (visible) {
+    	
+    } else {
+    	
+    }
+}
 controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
     if (gameState == "playing") {
         gameModeChange("pause")
@@ -187,23 +194,23 @@ function gameModeChange (mode: string) {
             `)
         blockMenu.showMenu(["Play", "Instructions", "Credits"], MenuStyle.List, MenuLocation.BottomHalf)
         blockMenu.setColors(1, 13)
-        sprSammyText = textsprite.create("Sammy Snake", 13, 4)
-        sprSammyText.setFlag(SpriteFlag.Invisible, false)
-        sprSammyText.setMaxFontHeight(14)
-        sprSammyText.setPosition(85, 25)
+        txtGameTitle.setText("Sammy Snake")
+        txtGameTitle.setFlag(SpriteFlag.Invisible, false)
+        txtGameTitle.setMaxFontHeight(14)
+        txtGameTitle.setPosition(85, 25)
     } else if (mode == "playing") {
         blockMenu.closeMenu()
         blockMenu.setControlsEnabled(false)
         snakeCreate()
         gameStart()
         info.setScore(0)
-        sprSammyText.setFlag(SpriteFlag.Invisible, true)
+        txtGameTitle.setFlag(SpriteFlag.Invisible, true)
         gameState = "playing"
     } else if (mode == "credits") {
         blockMenu.setControlsEnabled(false)
     } else if (mode == "instructions") {
         blockMenu.setControlsEnabled(false)
-        sprSammyText.setText("Instructions")
+        txtGameTitle.setText("Instructions")
         blockMenu.closeMenu()
         story.startCutscene(function () {
             story.setSoundEnabled(true)
@@ -277,15 +284,16 @@ blockMenu.onMenuOptionSelected(function (option, index) {
     }
 })
 let gamePlaying = false
-let sprSammyText: TextSprite = null
 let sprSnake: Sprite = null
 let sprNewFruit: Sprite = null
 let sprTail: Sprite[] = []
+let txtGameTitle: TextSprite = null
 let snakeBodyPositions: number[][] = []
 let gameState = ""
 gameState = ""
 snakeBodyPositions = []
 let snakeSpeed = 300
+txtGameTitle = textsprite.create("", 13, 4)
 sprTail = []
 gameModeChange("menu")
 game.onUpdateInterval(snakeSpeed, function () {
