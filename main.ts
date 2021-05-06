@@ -70,7 +70,6 @@ function tailAddSegment (segment: Sprite) {
 function gameModeChange (mode: string) {
     console.logValue("gameModeChange", mode)
     if (mode == "menu") {
-        story.cancelAllCutscenes()
         blockMenu.setControlsEnabled(true)
         scene.setBackgroundColor(13)
         scene.setBackgroundImage(img`
@@ -217,16 +216,153 @@ function gameModeChange (mode: string) {
         txtGameHighScore.setFlag(SpriteFlag.Invisible, true)
         gameState = "playing"
     } else if (mode == "credits") {
-        blockMenu.setControlsEnabled(false)
+        game.setDialogFrame(img`
+            ..bbbbbbbbbbbbbbbbbbbb..
+            .b11bb11bb11bb11bb11bbb.
+            bbb11bb11bb11bb11bb11b1b
+            bb1bbbbbbbbbbbbbbbbbb11b
+            b11bb11111111111111bb1bb
+            b1bb1111111111111111bbbb
+            bbbb1111111111111111bb1b
+            bb1b1111111111111111b11b
+            b11b1111111111111111b1bb
+            b1bb1111111111111111bbbb
+            bbbb1111111111111111bb1b
+            bb1b1111111111111111b11b
+            b11b1111111111111111b1bb
+            b1bb1111111111111111bbbb
+            bbbb1111111111111111bb1b
+            bb1b1111111111111111b11b
+            b11b1111111111111111b1bb
+            b1bb1111111111111111bbbb
+            bbbb1111111111111111bb1b
+            bb1bb11111111111111bb11b
+            b11bbbbbbbbbbbbbbbbbb1bb
+            b1b11bb11bb11bb11bb11bbb
+            .bbb11bb11bb11bb11bb11b.
+            ..bbbbbbbbbbbbbbbbbbbb..
+            `)
+        game.setDialogCursor(img`
+            ................................
+            ................................
+            ................................
+            ................................
+            ................................
+            ..........888888888888..........
+            ........8887777777777888........
+            ......88877666666666677888......
+            .....8877666667777666667788.....
+            ....887666667788887766666788....
+            ....866666677888888996666678....
+            ...88666667788877889976666688...
+            ...88666677888677688877666688...
+            ...88666778888888888887766688...
+            ...88667788888888888888776688...
+            ..cc866788866777777668887668cc..
+            .ccbc8668866666666666688668cbcc.
+            .fcbcc86666666666666666668ccbcf.
+            .fcbbcc886666666666666688ccbdcf.
+            .f8bbbccc88888888888888cccbddcf.
+            .f8cbbbbccccccccccccccccbdddbcf.
+            .f8ccbbbbbccccccccccccb11dddccf.
+            .f6ccccbbbdddddddddddd111ddcccf.
+            .f6ccccccbbddddddddddd11dbbcccf.
+            .f6cccccccccccccbbbbbbbbbdbcccf.
+            ..f6cccccccccbbbbbbbbbbbddbccf..
+            ..f6cccccccccbbbbbbbbbbbddbccf..
+            ..ff6ccccccccbbbbbbbbbbbddbcff..
+            ...ff6cccccccbbbbbbbbbbbddbff...
+            ....ffcccccccbbbbbbbbbbbdbff....
+            ......ffccccbbbbbbbbbbbbff......
+            ........ffffffffffffffff........
+            `)
+        game.showLongText("Design and code was made by Stefan and Gabriel. Created by StefanStudios at <ScriuCod/> ", DialogLayout.Full)
     } else if (mode == "instructions") {
-        blockMenu.setControlsEnabled(false)
-        txtGameTitle.setText("Instructions")
-        blockMenu.closeMenu()
-        story.startCutscene(function () {
-            story.setSoundEnabled(true)
-            story.printDialog("Use the arrow keys to determine the direction of the snake. Collect apples, and don't bump into yourself or the wall. Good luck =)", 85, 100, 80, 160, 4, 13, story.TextSpeed.Normal)
-            story.printDialog("Press B to go back to menu.", 85, 100, 80, 160, 4, 13, story.TextSpeed.Normal)
-        })
+        game.setDialogFrame(img`
+            999999999999999999999999999999999999999999999999
+            999999999999999999999999999999999999999999999999
+            999911119999119991111999111199999999119999999999
+            999111111191111911111191111119911191111991111999
+            999111111111111111111111111111111111111911111199
+            999111111111111111111111111111111111111111111199
+            999111111111111111111111111111111111111111111199
+            999911111111111111111111111111111111111111111199
+            999991111111111111111111111111111111111111111999
+            999111111111111111111111111111111111111111111999
+            991111111111111111111111111111111111111111119999
+            991111111111111111111111111111111111111111111999
+            999111111111111111111111111111111111111111111199
+            999911111111111111111111111111111111111111111199
+            999111111111111111111111111111111111111111111999
+            999111111111111111111111111111111111111111119999
+            999111111111111111111111111111111111111111111999
+            999911111111111111111111111111111111111111111199
+            999911111111111111111111111111111111111111111199
+            999111111111111111111111111111111111111111111199
+            991111111111111111111111111111111111111111111199
+            991111111111111111111111111111111111111111111999
+            991111111111111111111111111111111111111111119999
+            991111111111111111111111111111111111111111111999
+            999111111111111111111111111111111111111111111199
+            999911111111111111111111111111111111111111111199
+            999111111111111111111111111111111111111111111199
+            991111111111111111111111111111111111111111111199
+            991111111111111111111111111111111111111111111999
+            991111111111111111111111111111111111111111119999
+            991111111111111111111111111111111111111111119999
+            999111111111111111111111111111111111111111111999
+            99d1111111111111111111111111111111111dd111111199
+            9ddd111111111111111111111111111111111dd111111199
+            9ddd1111111111dd111111111111111111111dd1111dd199
+            9d1d111111111ddddd11111111111ddddd111ddd111ddd99
+            9ddd111ddd111d111d1111ddddd11d111d11dddd111ddd99
+            9d1d11ddddd11ddddd1111ddddd11ddddd11d1dd111ddd99
+            9ddd11d1d1d11d111d1dd1d1ddd11d111d11dddddddddd99
+            9d1d11ddddd11ddddd1dd1ddd1d11ddddddddd1ddd111ddd
+            dddd11d1d1d11d111d1dd1ddddd11d111ddddddddddddddd
+            dd1d1ddddddddddddd1dd1d1ddddddddddddd1dddd111ddd
+            dddd1dd1d1dddd111dddddddd1dddd111ddddddddddddddd
+            dd1d1ddddddddddddddddddddddddddddddddd1ddd111ddd
+            ddddddddddddddddddddddd1dddddddddddddddddddddddd
+            ddddddddddddddddddddddddd1ddddddddddd1dddd111ddd
+            .dddddddddddddddddddddddddddddddddddddddddddddd.
+            ..dddddddddddddddddddddddddddddddddddddddddddd..
+            `)
+        game.setDialogCursor(img`
+            ................................
+            ................................
+            ................................
+            ................................
+            ................................
+            ..........888888888888..........
+            ........8887777777777888........
+            ......88877666666666677888......
+            .....8877666667777666667788.....
+            ....887666667788887766666788....
+            ....866666677888888996666678....
+            ...88666667788877889976666688...
+            ...88666677888677688877666688...
+            ...88666778888888888887766688...
+            ...88667788888888888888776688...
+            ..cc866788866777777668887668cc..
+            .ccbc8668866666666666688668cbcc.
+            .fcbcc86666666666666666668ccbcf.
+            .fcbbcc886666666666666688ccbdcf.
+            .f8bbbccc88888888888888cccbddcf.
+            .f8cbbbbccccccccccccccccbdddbcf.
+            .f8ccbbbbbccccccccccccb11dddccf.
+            .f6ccccbbbdddddddddddd111ddcccf.
+            .f6ccccccbbddddddddddd11dbbcccf.
+            .f6cccccccccccccbbbbbbbbbdbcccf.
+            ..f6cccccccccbbbbbbbbbbbddbccf..
+            ..f6cccccccccbbbbbbbbbbbddbccf..
+            ..ff6ccccccccbbbbbbbbbbbddbcff..
+            ...ff6cccccccbbbbbbbbbbbddbff...
+            ....ffcccccccbbbbbbbbbbbdbff....
+            ......ffccccbbbbbbbbbbbbff......
+            ........ffffffffffffffff........
+            `)
+        game.showLongText("Use the arrow keys to determine the direction of the snake. Collect apples, and don't bump into yourself or the wall. Good luck =)", DialogLayout.Full)
     } else if (mode == "pause") {
         blockMenu.setControlsEnabled(true)
         blockMenu.showMenu(["Resume", "Save and close"], MenuStyle.List, MenuLocation.BottomHalf)
@@ -242,11 +378,11 @@ function gameModeChange (mode: string) {
         for (let value of sprites.allOfKind(SpriteKind.Player)) {
             value.destroy()
         }
-        for (let value of sprites.allOfKind(SpriteKind.Food)) {
-            value.destroy()
+        for (let value2 of sprites.allOfKind(SpriteKind.Food)) {
+            value2.destroy()
         }
-        for (let value of sprites.allOfKind(SpriteKind.Tail)) {
-            value.destroy()
+        for (let value3 of sprites.allOfKind(SpriteKind.Tail)) {
+            value3.destroy()
         }
     }
 }
