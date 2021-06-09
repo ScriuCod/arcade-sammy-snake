@@ -1,77 +1,66 @@
 namespace SpriteKind {
     export const Tail = SpriteKind.create()
 }
-function FruitPlaceRandom (fruit: Image, randomX: number, randomY: number) {
+function snakeSetDirection (direction: string) {
+    if (gameMode == "Playing") {
+        sprites.setDataString(sprSnake, "direction", direction)
+        if (direction == "up") {
+            transformSprites.rotateSprite(sprSnake, 270)
+        } else if (direction == "down") {
+            transformSprites.rotateSprite(sprSnake, 90)
+        } else if (direction == "right") {
+            transformSprites.rotateSprite(sprSnake, 0)
+        } else if (direction == "left") {
+            transformSprites.rotateSprite(sprSnake, 180)
+        }
+    }
+}
+controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
+    snakeSetDirection("up")
+})
+controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
+    if (gameMode == "Playing") {
+        gameModeChange("Pause")
+    } else {
+        gameModeChange("Menu")
+    }
+})
+sprites.onDestroyed(SpriteKind.Food, function (sprite) {
+    if (gameMode == "Playing") {
+        info.changeScoreBy(1)
+        fruitPlaceRandom(resGameFruits[randint(0, 2)], randint(10, scene.screenWidth() - 10), randint(10, scene.screenHeight() - 10))
+        sprTail.push(sprites.create(assets.image`snake-segment`, SpriteKind.Tail))
+        sprTail[sprTail.length - 1].setPosition(snakeBodyPositions[sprTail.length - 1][0], snakeBodyPositions[sprTail.length - 1][1])
+        sprites.setDataNumber(sprSnake, "speed", 300 - info.score() * 2)
+        if (info.score() > blockSettings.readNumber("score")) {
+            blockSettings.writeNumber("score", info.score())
+        }
+    }
+})
+function fruitPlaceRandom (fruit: Image, randomX: number, randomY: number) {
     sprNewFruit = sprites.create(fruit, SpriteKind.Food)
     sprNewFruit.setPosition(randomX - randomX % 10 - 5, randomY - randomY % 10 - 5)
     console.logValue("FruitPlaceRandom", "x:" + (randomX - randomX % 10 - 0) + " y:" + (randomY - randomY % 10 - 0))
 }
-function snakeSetDirection (direction: string) {
-    sprites.setDataString(sprSnake, "direction", direction)
-    if (direction == "up") {
-        transformSprites.rotateSprite(sprSnake, 270)
-    } else if (direction == "down") {
-        transformSprites.rotateSprite(sprSnake, 90)
-    } else if (direction == "right") {
-        transformSprites.rotateSprite(sprSnake, 0)
-    } else if (direction == "left") {
-        transformSprites.rotateSprite(sprSnake, 180)
-    }
-}
-controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (gameState == "playing") {
-        snakeSetDirection("up")
-    }
-})
-function snakeVisibility (visible: boolean) {
-    if (visible) {
-    	
-    } else {
-    	
-    }
-}
-controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (gameState == "playing") {
-        gameModeChange("pause")
-    } else {
-        gameModeChange("menu")
-        story.setSoundEnabled(false)
-    }
-})
-sprites.onDestroyed(SpriteKind.Food, function (sprite) {
-    info.changeScoreBy(1)
-    FruitPlaceRandom([assets.image`fruit-lemon`, assets.image`fruit-strawberry`, assets.image`fruit-orange`][randint(0, 2)], randint(10, scene.screenWidth() - 10), randint(10, scene.screenHeight() - 10))
-    tailAddSegment(sprites.create(assets.image`snake-segment`, SpriteKind.Tail))
-    sprites.setDataNumber(sprSnake, "speed", 300 - info.score() * 2)
-    console.logValue("newSpeed", sprites.readDataNumber(sprSnake, "speed"))
-    if (info.score() > blockSettings.readNumber("score")) {
-        blockSettings.writeNumber("score", info.score())
-    }
-})
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Tail, function (sprite, otherSprite) {
     game.over(false)
 })
-function snakeCreate () {
-    sprSnake = sprites.create(assets.image`snake-head`, SpriteKind.Player)
-    sprSnake.setPosition(5, 55)
-    sprites.setDataString(sprSnake, "direction", "right")
-    sprSnake.setFlag(SpriteFlag.StayInScreen, true)
-    sprSnake.setFlag(SpriteFlag.Invisible, true)
-}
 controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (gameState == "playing") {
-        snakeSetDirection("left")
-    }
+    snakeSetDirection("left")
 })
-function tailAddSegment (segment: Sprite) {
-    sprTail.push(segment)
-    sprTail[sprTail.length - 1].setPosition(snakeBodyPositions[sprTail.length - 1][0], snakeBodyPositions[sprTail.length - 1][1])
+function gameSettingsLoad () {
+    if (blockSettings.exists("score")) {
+        gameHighScore = blockSettings.readNumber("score")
+        console.log("Settings loaded")
+    } else {
+        blockSettings.writeNumber("score", 0)
+        console.log("Settings created")
+    }
 }
 function gameModeChange (mode: string) {
     console.logValue("gameModeChange", mode)
-    gameState = mode
+    gameMode = mode
     if (mode == "Menu") {
-        blockMenu.setControlsEnabled(true)
         scene.setBackgroundColor(13)
         scene.setBackgroundImage(img`
             ................................................................................................................................................................
@@ -195,20 +184,19 @@ function gameModeChange (mode: string) {
             ................................................................................................................................................................
             ................................................................................................................................................................
             `)
-        blockMenu.showMenu(["Play", "Instructions", "Credits"], MenuStyle.List, MenuLocation.BottomHalf)
+        blockMenu.showMenu(["Play game", "Instructions", "Credits"], MenuStyle.List, MenuLocation.BottomHalf)
         blockMenu.setColors(1, 13)
         txtGameTitle.setText("Sammy Snake")
-        txtGameTitle.setFlag(SpriteFlag.Invisible, false)
         txtGameTitle.setMaxFontHeight(14)
         txtGameTitle.setPosition(85, 25)
         if (gameHighScore > 0) {
-            txtGameHighScore.setFlag(SpriteFlag.Invisible, false)
             txtGameHighScore.setText("HighScore: " + gameHighScore)
             txtGameHighScore.setMaxFontHeight(7)
             txtGameHighScore.setPosition(85, 45)
         }
-    } else if (mode == "Playing") {
+    } else if (mode == "Save and close") {
         blockMenu.closeMenu()
+        gameModeChange("Closing")
     } else if (mode == "Credits") {
         game.setDialogFrame(img`
             ..bbbbbbbbbbbbbbbbbbbb..
@@ -290,19 +278,22 @@ function gameModeChange (mode: string) {
             `)
         game.showLongText("Use the arrow keys to determine the direction of the snake. Collect apples, and don't bump into yourself or the wall. Good luck =)", DialogLayout.Full)
     } else if (mode == "Pause") {
-        blockMenu.setControlsEnabled(true)
         blockMenu.showMenu(["Resume", "Save and close"], MenuStyle.List, MenuLocation.BottomHalf)
     } else if (mode == "Resume") {
         blockMenu.closeMenu()
-    } else if (mode == "Save and close") {
-        blockMenu.closeMenu()
-        gameModeChange("Closing")
+    } else if (mode == "Playing") {
+        snakeSetDirection("right")
+        fruitPlaceRandom(resGameFruits[randint(0, 2)], randint(10, scene.screenWidth() - 10), randint(10, scene.screenHeight() - 10))
     } else if (mode == "Starting") {
-        snakeCreate()
-        gameStart()
         info.setScore(0)
-        txtGameTitle.setFlag(SpriteFlag.Invisible, true)
-        txtGameHighScore.setFlag(SpriteFlag.Invisible, true)
+        scene.setBackgroundColor(13)
+        scene.setBackgroundImage(assets.image`game-grid`)
+        txtGameTitle.setText("")
+        txtGameHighScore.setText("")
+        sprSnake = sprites.create(assets.image`snake-head`, SpriteKind.Player)
+        sprSnake.setPosition(5, 55)
+        sprites.setDataString(sprSnake, "direction", "right")
+        sprSnake.setFlag(SpriteFlag.StayInScreen, true)
         gameModeChange("Playing")
     } else if (mode == "Closing") {
         snakeBodyPositions = []
@@ -317,22 +308,17 @@ function gameModeChange (mode: string) {
             value3.destroy()
         }
         gameModeChange("Menu")
+    } else if (mode == "Play game") {
+        gameModeChange("Starting")
+        blockMenu.closeMenu()
     }
 }
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (gameState == "playing") {
-        snakeSetDirection("right")
-    }
+    snakeSetDirection("right")
 })
 controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (gameState == "playing") {
-        snakeSetDirection("down")
-    }
+    snakeSetDirection("down")
 })
-function fruitCreate () {
-    console.logValue("fruitPlaceRandom At", 0)
-    FruitPlaceRandom([assets.image`fruit-lemon`, assets.image`fruit-strawberry`, assets.image`fruit-orange`][randint(0, 2)], randint(10, scene.screenWidth() - 10), randint(10, scene.screenHeight() - 10))
-}
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSprite) {
     otherSprite.destroy()
 })
@@ -351,48 +337,37 @@ function snakeAdvance (direction: string, x: number, y: number) {
         sprTail[index].setPosition(snakeBodyPositions[index][0], snakeBodyPositions[index][1])
     }
 }
-function gameStart () {
-    scene.setBackgroundColor(13)
-    scene.setBackgroundImage(assets.image`game-grid`)
-    gamePlaying = true
-    sprSnake.setFlag(SpriteFlag.Invisible, false)
-    snakeSetDirection("right")
-    fruitCreate()
-}
-function settingsLoad () {
-    if (blockSettings.exists("score")) {
-        gameHighScore = blockSettings.readNumber("score")
-        console.log("Settings loaded")
-    } else {
-        blockSettings.writeNumber("score", 0)
-        console.log("Settings created")
-    }
-}
 blockMenu.onMenuOptionSelected(function (option, index) {
-    console.logValue("Menu selection", option)
     gameModeChange(option)
 })
-let gamePlaying = false
-let sprSnake: Sprite = null
 let sprNewFruit: Sprite = null
-let sprTail: Sprite[] = []
+let sprSnake: Sprite = null
 let txtGameHighScore: TextSprite = null
 let txtGameTitle: TextSprite = null
+let sprTail: Sprite[] = []
 let snakeBodyPositions: number[][] = []
-let gameState = ""
+let resGameFruits: Image[] = []
 let gameHighScore = 0
+let gameMode = ""
+gameMode = ""
 gameHighScore = 0
-gameState = ""
+resGameFruits = [assets.image`fruit-lemon`, assets.image`fruit-strawberry`, assets.image`fruit-orange`]
 snakeBodyPositions = []
 let snakeSpeed = 300
-txtGameTitle = textsprite.create(" ", 13, 4)
-txtGameHighScore = textsprite.create(" ", 13, 4)
 sprTail = []
-settingsLoad()
-gameModeChange("menu")
+txtGameTitle = textsprite.create("", 13, 4)
+txtGameHighScore = textsprite.create(" ", 13, 4)
+gameSettingsLoad()
+gameModeChange("Menu")
+game.onUpdate(function () {
+    if (blockMenu.isMenuOpen()) {
+        blockMenu.setControlsEnabled(true)
+    } else {
+        blockMenu.setControlsEnabled(false)
+    }
+})
 game.onUpdateInterval(snakeSpeed, function () {
-    console.logValue("gameUpdate ", snakeSpeed)
-    if (gameState == "playing") {
+    if (gameMode == "Playing") {
         snakeAdvance(sprites.readDataString(sprSnake, "direction"), sprSnake.x, sprSnake.y)
     }
 })
