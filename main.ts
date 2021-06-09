@@ -69,7 +69,8 @@ function tailAddSegment (segment: Sprite) {
 }
 function gameModeChange (mode: string) {
     console.logValue("gameModeChange", mode)
-    if (mode == "menu") {
+    gameState = mode
+    if (mode == "Menu") {
         blockMenu.setControlsEnabled(true)
         scene.setBackgroundColor(13)
         scene.setBackgroundImage(img`
@@ -206,16 +207,9 @@ function gameModeChange (mode: string) {
             txtGameHighScore.setMaxFontHeight(7)
             txtGameHighScore.setPosition(85, 45)
         }
-    } else if (mode == "playing") {
+    } else if (mode == "Playing") {
         blockMenu.closeMenu()
-        blockMenu.setControlsEnabled(false)
-        snakeCreate()
-        gameStart()
-        info.setScore(0)
-        txtGameTitle.setFlag(SpriteFlag.Invisible, true)
-        txtGameHighScore.setFlag(SpriteFlag.Invisible, true)
-        gameState = "playing"
-    } else if (mode == "credits") {
+    } else if (mode == "Credits") {
         game.setDialogFrame(img`
             ..bbbbbbbbbbbbbbbbbbbb..
             .b11bb11bb11bb11bb11bbb.
@@ -242,42 +236,8 @@ function gameModeChange (mode: string) {
             .bbb11bb11bb11bb11bb11b.
             ..bbbbbbbbbbbbbbbbbbbb..
             `)
-        game.setDialogCursor(img`
-            ................................
-            ................................
-            ................................
-            ................................
-            ................................
-            ..........888888888888..........
-            ........8887777777777888........
-            ......88877666666666677888......
-            .....8877666667777666667788.....
-            ....887666667788887766666788....
-            ....866666677888888996666678....
-            ...88666667788877889976666688...
-            ...88666677888677688877666688...
-            ...88666778888888888887766688...
-            ...88667788888888888888776688...
-            ..cc866788866777777668887668cc..
-            .ccbc8668866666666666688668cbcc.
-            .fcbcc86666666666666666668ccbcf.
-            .fcbbcc886666666666666688ccbdcf.
-            .f8bbbccc88888888888888cccbddcf.
-            .f8cbbbbccccccccccccccccbdddbcf.
-            .f8ccbbbbbccccccccccccb11dddccf.
-            .f6ccccbbbdddddddddddd111ddcccf.
-            .f6ccccccbbddddddddddd11dbbcccf.
-            .f6cccccccccccccbbbbbbbbbdbcccf.
-            ..f6cccccccccbbbbbbbbbbbddbccf..
-            ..f6cccccccccbbbbbbbbbbbddbccf..
-            ..ff6ccccccccbbbbbbbbbbbddbcff..
-            ...ff6cccccccbbbbbbbbbbbddbff...
-            ....ffcccccccbbbbbbbbbbbdbff....
-            ......ffccccbbbbbbbbbbbbff......
-            ........ffffffffffffffff........
-            `)
         game.showLongText("Design and code was made by Stefan and Gabriel. Created by StefanStudios at <ScriuCod/> ", DialogLayout.Full)
-    } else if (mode == "instructions") {
+    } else if (mode == "Instructions") {
         game.setDialogFrame(img`
             999999999999999999999999999999999999999999999999
             999999999999999999999999999999999999999999999999
@@ -328,51 +288,23 @@ function gameModeChange (mode: string) {
             .dddddddddddddddddddddddddddddddddddddddddddddd.
             ..dddddddddddddddddddddddddddddddddddddddddddd..
             `)
-        game.setDialogCursor(img`
-            ................................
-            ................................
-            ................................
-            ................................
-            ................................
-            ..........888888888888..........
-            ........8887777777777888........
-            ......88877666666666677888......
-            .....8877666667777666667788.....
-            ....887666667788887766666788....
-            ....866666677888888996666678....
-            ...88666667788877889976666688...
-            ...88666677888677688877666688...
-            ...88666778888888888887766688...
-            ...88667788888888888888776688...
-            ..cc866788866777777668887668cc..
-            .ccbc8668866666666666688668cbcc.
-            .fcbcc86666666666666666668ccbcf.
-            .fcbbcc886666666666666688ccbdcf.
-            .f8bbbccc88888888888888cccbddcf.
-            .f8cbbbbccccccccccccccccbdddbcf.
-            .f8ccbbbbbccccccccccccb11dddccf.
-            .f6ccccbbbdddddddddddd111ddcccf.
-            .f6ccccccbbddddddddddd11dbbcccf.
-            .f6cccccccccccccbbbbbbbbbdbcccf.
-            ..f6cccccccccbbbbbbbbbbbddbccf..
-            ..f6cccccccccbbbbbbbbbbbddbccf..
-            ..ff6ccccccccbbbbbbbbbbbddbcff..
-            ...ff6cccccccbbbbbbbbbbbddbff...
-            ....ffcccccccbbbbbbbbbbbdbff....
-            ......ffccccbbbbbbbbbbbbff......
-            ........ffffffffffffffff........
-            `)
         game.showLongText("Use the arrow keys to determine the direction of the snake. Collect apples, and don't bump into yourself or the wall. Good luck =)", DialogLayout.Full)
-    } else if (mode == "pause") {
+    } else if (mode == "Pause") {
         blockMenu.setControlsEnabled(true)
         blockMenu.showMenu(["Resume", "Save and close"], MenuStyle.List, MenuLocation.BottomHalf)
-        gameState = "paused"
-    } else if (mode == "resume") {
+    } else if (mode == "Resume") {
         blockMenu.closeMenu()
-        gameState = "playing"
-    } else if (mode == "save") {
+    } else if (mode == "Save and close") {
         blockMenu.closeMenu()
-        gameModeChange("menu")
+        gameModeChange("Closing")
+    } else if (mode == "Starting") {
+        snakeCreate()
+        gameStart()
+        info.setScore(0)
+        txtGameTitle.setFlag(SpriteFlag.Invisible, true)
+        txtGameHighScore.setFlag(SpriteFlag.Invisible, true)
+        gameModeChange("Playing")
+    } else if (mode == "Closing") {
         snakeBodyPositions = []
         sprTail = []
         for (let value of sprites.allOfKind(SpriteKind.Player)) {
@@ -384,6 +316,7 @@ function gameModeChange (mode: string) {
         for (let value3 of sprites.allOfKind(SpriteKind.Tail)) {
             value3.destroy()
         }
+        gameModeChange("Menu")
     }
 }
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
@@ -437,17 +370,7 @@ function settingsLoad () {
 }
 blockMenu.onMenuOptionSelected(function (option, index) {
     console.logValue("Menu selection", option)
-    if (option == "Play") {
-        gameModeChange("playing")
-    } else if (option == "Instructions") {
-        gameModeChange("instructions")
-    } else if (option == "Credits") {
-        gameModeChange("credits")
-    } else if (option == "Resume") {
-        gameModeChange("resume")
-    } else if (option == "Save and close") {
-        gameModeChange("save")
-    }
+    gameModeChange(option)
 })
 let gamePlaying = false
 let sprSnake: Sprite = null
