@@ -29,7 +29,7 @@ sprites.onDestroyed(SpriteKind.Food, function (sprite) {
     if (gameMode == "Playing") {
         info.changeScoreBy(1)
         fruitPlaceRandom(resGameFruits[randint(0, 2)], randint(10, scene.screenWidth() - 10), randint(10, scene.screenHeight() - 10))
-        sprTail.push(sprites.create(assets.image`snake-segment`, SpriteKind.Tail))
+        sprTail.push(sprites.create(resGamrSnake[1], SpriteKind.Tail))
         sprTail[sprTail.length - 1].setPosition(snakeBodyPositions[sprTail.length - 1][0], snakeBodyPositions[sprTail.length - 1][1])
         sprites.setDataNumber(sprSnake, "speed", 300 - info.score() * 2)
         if (info.score() > blockSettings.readNumber("score")) {
@@ -281,19 +281,21 @@ function gameModeChange (mode: string) {
         blockMenu.showMenu(["Resume", "Save and close"], MenuStyle.List, MenuLocation.BottomHalf)
     } else if (mode == "Resume") {
         blockMenu.closeMenu()
+        gameModeChange("Playing")
     } else if (mode == "Playing") {
-        snakeSetDirection("right")
-        fruitPlaceRandom(resGameFruits[randint(0, 2)], randint(10, scene.screenWidth() - 10), randint(10, scene.screenHeight() - 10))
+    	
     } else if (mode == "Starting") {
         info.setScore(0)
         scene.setBackgroundColor(13)
         scene.setBackgroundImage(assets.image`game-grid`)
         txtGameTitle.setText("")
         txtGameHighScore.setText("")
-        sprSnake = sprites.create(assets.image`snake-head`, SpriteKind.Player)
+        sprSnake = sprites.create(resGamrSnake[0], SpriteKind.Player)
         sprSnake.setPosition(5, 55)
         sprites.setDataString(sprSnake, "direction", "right")
         sprSnake.setFlag(SpriteFlag.StayInScreen, true)
+        snakeSetDirection("right")
+        fruitPlaceRandom(resGameFruits[randint(0, 2)], randint(10, scene.screenWidth() - 10), randint(10, scene.screenHeight() - 10))
         gameModeChange("Playing")
     } else if (mode == "Closing") {
         snakeBodyPositions = []
@@ -346,12 +348,14 @@ let txtGameHighScore: TextSprite = null
 let txtGameTitle: TextSprite = null
 let sprTail: Sprite[] = []
 let snakeBodyPositions: number[][] = []
+let resGamrSnake: Image[] = []
 let resGameFruits: Image[] = []
 let gameHighScore = 0
 let gameMode = ""
 gameMode = ""
 gameHighScore = 0
 resGameFruits = [assets.image`fruit-lemon`, assets.image`fruit-strawberry`, assets.image`fruit-orange`]
+resGamrSnake = [assets.image`snake-head`, assets.image`snake-segment`]
 snakeBodyPositions = []
 let snakeSpeed = 300
 sprTail = []
